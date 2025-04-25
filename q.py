@@ -1,4 +1,13 @@
 from tkinter import *
+import atexit
+import shutil
+import os
+
+def garbageCollector():
+    if os.path.exists("./__pycache__"): shutil.rmtree("./__pycache__")
+
+garbageCollector()
+atexit.register(garbageCollector)
 
 PACK_DISPLAY = 0
 GRID_DISPLAY = 1
@@ -23,8 +32,7 @@ class _QWin:
     def _updateWindow(self,row=0):
         if self.children:
             for idy,child in enumerate(self.children):
-                child.widget.pack_forget() if self.display == PACK_DISPLAY else child.widget.grid_forget()
-                child.widget.pack() if self.display == PACK_DISPLAY else child.widget.grid(idy)
+                child.widget.pack_forget();child.widget.pack() if self.display == PACK_DISPLAY else child.widget.grid_forget();child.widget.grid(idy)
         self.obj.geometry("{}x{}+{}+{}".format(self.width,self.height,self.position[0],self.position[1]))
     def setDimension(self,width,height):
         self.width = width
@@ -35,13 +43,13 @@ class _QWin:
         self.position = position
         self._updateWindow()
         return self
-    def addChild(self,child):
-        self.children.append(child)
-        child._parent = self
-        self._updateWindow()
-        return self
     def s(self,object):
         return object
+    def i(self,index:int):
+        return self.children[index]
+    def removeChild(self,index:int):
+        del self.children[index]
+        return self
 class _QObject:
     def __init__(self,widget,classType=Widget):
         self.widget = widget
@@ -64,7 +72,7 @@ class _QObject:
 def getMainWindow():
     global _mainWindow
     return _mainWindow
-def mainWindow(window:Tk,display:int=0):
+def mainWindow(window:Tk,display:int):
     global _mainWindow
     _mainWindow = _QWin(window,display)
     return getMainWindow()
