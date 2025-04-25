@@ -1,13 +1,4 @@
 from tkinter import *
-import atexit
-import shutil
-import os
-
-def garbageCollector():
-    if os.path.exists("./__pycache__"): shutil.rmtree("./__pycache__")
-
-garbageCollector()
-atexit.register(garbageCollector)
 
 PACK_DISPLAY = 0
 GRID_DISPLAY = 1
