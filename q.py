@@ -21,7 +21,7 @@ class _QWin:
         self.position = [0,0]
         self.display = display
         self.children = []
-        self._updateWindow()
+        self._update()
     def title(self,string:str):
         self.obj.title(string)
         return self
@@ -29,19 +29,19 @@ class _QWin:
         self.obj.mainloop()
         return self
     # ROW IS ONLY USED FOR GRID_DISPLAY
-    def _updateWindow(self,row=0):
+    def _update(self,row=0):
         if self.children:
             for idy,child in enumerate(self.children):
-                child.widget.pack_forget();child.widget.pack() if self.display == PACK_DISPLAY else child.widget.grid_forget();child.widget.grid(idy)
+                child.widget.pack_forget();child.widget.pack() if self.display == PACK_DISPLAY else child.widget.grid_forget();child.widget.grid(row=idy)
         self.obj.geometry("{}x{}+{}+{}".format(self.width,self.height,self.position[0],self.position[1]))
     def setDimension(self,width,height):
         self.width = width
         self.height = height
-        self._updateWindow()
+        self._update()
         return self
     def setPosition(self,position:list):
         self.position = position
-        self._updateWindow()
+        self._update()
         return self
     def s(self,object):
         return object
@@ -50,14 +50,21 @@ class _QWin:
     def removeChild(self,index:int):
         del self.children[index]
         return self
+    def addChild(self,item):
+        self.children.append(item)
+        item._parent = self
+        return self
 class _QObject:
     def __init__(self,widget,classType=Widget):
         self.widget = widget
         self.classType = classType
         self._parent = None
+        self.children = []
+        self.display = PACK_DISPLAY
+        self._update()
     def parent(self):
         return self._parent
-    def appendTo(self,window:_QWin):
+    def appendTo(self,window):
         window.addChild(self)
         return self._parent if self._parent else None
     def w(window:_QWin):
@@ -67,7 +74,21 @@ class _QObject:
             self.widget[attribute] = value
         else:
             self.widget.config(attributes)
-        self._parent._updateWindow()
+        self._parent._update()
+        return self
+    def removeChild(self,index:int):
+        del self.children[index]
+        return self
+    def addChild(self,item):
+        self.children.append(item)
+        item._parent = self
+        self._update()
+        return self
+    def _update(self,row=0):
+        if self._parent: self.display = self._parent.display
+        if self.children:
+            for idy,child in enumerate(self.children):
+                child.widget.pack_forget();child.widget.pack() if self.display == PACK_DISPLAY else child.widget.grid_forget();child.widget.grid(row=idy)
 
 def getMainWindow():
     global _mainWindow
