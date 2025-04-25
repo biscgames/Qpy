@@ -1,7 +1,7 @@
 # Qpy
 Upcoming tkinter library to make applications easier
 
-VER: BETA 1
+VER: BETA 2
 
 ## HOW TO
 ### Simple Window
